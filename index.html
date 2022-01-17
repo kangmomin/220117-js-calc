@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+</head>
+<style>
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        background-color: #f1f1f1;
+    }
+
+    #container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+
+    .item {
+        flex: 1;
+        text-align: center;
+    }
+
+    .print {
+        font-size: 4.5em;
+        margin: 15px;
+    }
+
+    .input {
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        height: 40px;
+        width: 400px;
+        border-radius: 8px;
+        padding: 0 10px;
+        margin-bottom: 20px;
+    }
+
+    .circle-button {
+        border-radius: 50px;
+        width: 100px;
+        height: 100px;
+    }
+</style>
+
+<body>
+    <div id="container">
+        <div class="item">
+            <!-- 출력부분 -->
+            <div>
+                <h1 id="print" class="print">0</h1>
+            </div>
+            <!-- 입력부분 -->
+            <div><input type="button" value="reset" onclick="reset()"></div>
+            <div><input id="input" class="input" type="number" autocomplete="off" /></div>
+            <!-- 버튼부분 -->
+            <div>
+                <button onclick="_do('undo')" class="circle-button">undo</button>
+                <button onclick="calc('add')" class="circle-button">+</button>
+                <button onclick="calc('min')" class="circle-button">-</button>
+                <button onclick="_do('redo')" class="circle-button">redo</button>
+            </div>
+            <details>
+                <summary>기록</summary>
+                <h4>
+                    <pre id="history"></pre>
+                </h4>
+            </details>
+        </div>
+    </div>
+    
+    <script>
+        const input = document.getElementById('input')
+        const print = document.getElementById('print')
+        let sum = [0]
+        let idx = 0
+        // let redoData = []
+        
+        
+        /**
+         *   계산함수
+         *   --
+         */
+        function calc(type) {
+            let result 
+            
+            if(type == "min") {
+                result = sum[idx] - Number(input.value)
+                if (result < 0) return alert("-로 내려갑니다.")
+                print.innerText = result
+            } else {
+                result = Number(input.value) + sum[idx]
+                print.innerText = result
+            }
+            
+            idx++
+            if(idx < sum.length - 1 )
+                sum = [...sum.splice(0, idx+1), result] //splice의 return값은 삭제된 값들
+            else 
+                sum.push(result)
+            showHistory()
+            
+            // input.value = ""
+            // redoData = []
+        }
+        
+        function _do(type) {
+            let tempIndex
+            if (type == "undo") {
+                tempIndex = idx - 1
+                if(idx <= 0) return alert("no more undo")
+            } else {
+                tempIndex = idx + 1
+                if(idx >= sum.length - 1) return alert("no more redo")
+            }
+            print.innerText = sum[tempIndex]
+            idx = tempIndex
+            showHistory()
+        }
+        
+        function showHistory() {
+            const history = document.querySelector("#history")
+            history.innerText = JSON.stringify(sum)
+        }
+        
+        function reset() {
+            sum = [0]
+            idx = 0
+            print.innerText = 0
+            showHistory()
+        }
+        
+        // function undo() {
+        //     if (sum.length === 1) return alert("no more undo action")
+            
+        //     let lastData = sum[sum.length-1]
+        //     redoData.push(sum.pop())
+        //     print.innerText = lastData
+        // }
+        
+        // function redo() {
+        //     if(redoData.length == 0) return alert("no more redo action")
+            
+        //     let redo = redoData.pop()
+        //     sum.push(redo)
+        //     print.innerText = redo
+        // }
+        
+        
+        </script>
+</body>
+
+</html>
